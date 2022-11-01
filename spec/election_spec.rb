@@ -40,7 +40,7 @@ describe Election do
       expect(election.candidates).to eq([candidate1, candidate2, candidate3, candidate4, candidate5])
     end
   end
-  
+
   describe '#vote_counts' do
     it 'counts the number of votes for each candidate' do
       election.add_race(race1)
@@ -57,5 +57,31 @@ describe Election do
       6.times {candidate5.vote_for!}
       expect(election.vote_counts).to eq({"Diana D"=>4, "Roberto R"=>1, "Diego D"=>10, "Rita R"=>6, "Ida I"=>6})
     end
+  end
+
+  describe '#winners' do
+    it 'returns an array of all winning Candidates if there is no tie and race is closed' do
+      race1 = Race.new("Texas Governor")
+      candidate1 = race1.register_candidate!({name: "Diana D", party: :democrat})
+      candidate2 = race1.register_candidate!({name: "Roberto R", party: :republican})
+      4.times {candidate1.vote_for!}
+      1.times {candidate2.vote_for!}
+      race1.close!
+      race2 = Race.new("Virginia District 4 Representative")
+      candidate3 = race2.register_candidate!({name: "Diego D", party: :democrat})
+      candidate4 = race2.register_candidate!({name: "Rita R", party: :republican})
+      candidate5 = race2.register_candidate!({name: "Ida I", party: :independent})
+      1.times {candidate3.vote_for!}
+      6.times {candidate4.vote_for!}
+      6.times {candidate5.vote_for!}
+      race2.close!
+      race3 = Race.new("Colorado District 5 Representative")
+      election.add_race(race1)
+      election.add_race(race2)
+      election.add_race(race3)
+
+      expect(election.winners).to eq([candidate1])
+    end
+
   end
 end
